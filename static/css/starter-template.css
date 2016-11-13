@@ -1,0 +1,23 @@
+body {
+  padding-top: 50px;
+  background-color: #eee;
+}
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+
+.theme-dropdown .dropdown-menu {
+  position: static;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.theme-showcase > p > .btn {
+  margin: 5px 0;
+}
+
+.theme-showcase .navbar .container {
+  width: auto;
+}

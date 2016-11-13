@@ -1,0 +1,2 @@
+- limit nr of allowed categories
+- draw appropriate nr of colors randomly w/o replacement from max set of categories

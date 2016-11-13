@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Your Dashboard</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+
+    <!-- Theme CSS -->
+    <link href="/static/css/grayscale.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/bokeh-0.12.1.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.3.min.css" type="text/css" />
+
+    <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.3.min.js"></script>
+    <script type="text/javascript">
+        Bokeh.set_log_level("info");
+    </script>
+
+
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+
+    <![endif]-->
+  </head>
+
+  <body>
+
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+<div class="row"><div class="col-md-10">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand">Financial Assistant</a>
+        </div>
+
+        <div id="navbar" class="collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="{{ url_for("dashboard", name=name) }}">My Finances</a></li>
+            <li><a href="/logout">Logout</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+</div><div class="col-md-2"> <a class="navbar-brand">Welcome, {{ name }}! </a> </div></div></div>
+    </nav>
+
+<div class="col-md-12">
+  <div class="container">
+    <h2>Your Categories</h2>
+  </div>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        {% for colName in colNames %}
+        <th> {{ colName }} </th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in range(dframe_categories.index|length) %}
+      <tr> {% for val in dframe_categories.ix[row, colNames] %} <td> {{ val }} </td> {% endfor %}
+        <td><form method="post" action={{ url_for("delete_category", id=dframe_categories.ix[row, "id"]) }}>
+          <button type="submit" class="btn btn-outline-success btn-sm" value="{{ dframe_categories.ix[row, "id"] }}" name="delete">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+    <div class="container theme-showcase" role="main">
+
+     <h3>Add Category</h3>
+     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#popUpWindow">Open Form</button>
+     <div class="modal fade" id="popUpWindow">
+      <div class="modal-dialog">
+        <div class="modal-content">
+
+          <! --- HEADER --->
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h3 class="modal-title">Enter Category and Specify Keywords</h3>
+          </div>
+
+          <! --- BODY --->
+          <div class="modal-body">
+
+            <form role="form" method="POST" action={{ url_for("submit_category", name=name)}} >
+              <div class="form-group">
+              <!-- <label>Company:</label> -->
+              <input name="category_name" type="text" class="form-control" placeholder="Category Name">
+              </div>
+              <div class="form-group">
+              <!-- <label>Position:</label> -->
+              <input name="keywords" type="text" class="form-control" placeholder="List Keywords (comma-separated)">
+              </div>
+            </div>
+          <! --- FOOTER (button to submit) --->
+          <div class="modal-footer">
+            <button class="btn btn-primary btn-block" value="send" type="submit" name="action">Submit</button>
+          </div>
+          </form>
+
+        </div>
+      </div>
+     </div>
+
+      <div class="col-md-12" style="padding-bottom:20px;"></div>
+
+    <form action="{{ url_for('upload_data', name=name) }}" method="POST" enctype="multipart/form-data">
+        <input type="file" name="csv_file" />
+        <input type="submit" />
+    </form>
+
+      <div class="col-md-12" style="padding-bottom:20px;"></div>
+
+{% if plots_created %}
+
+<div class="col-md-12">
+    <div class="bk-root" style="padding-top:50px">
+        {{ div|safe }}
+    </div>
+</div>
+
+{{ js_script|safe }}
+
+<!--
+<script type="text/javascript"> {{ js_script|safe }} }); }); </script>
+-->
+{% endif %}
+
+  </div> <!-- /container -->
+
+
+
+    <!-- Footer -->
+    <footer>
+        <div class="container text-center">
+            <p>Copyright &copy; Goran Peic 2016</p>
+        </div>
+    </footer>
+
+    <!-- jQuery
+    <script src="/static/js/jquery.js"></script> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/static/js/jquery.min.js"><\/script>')</script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/js/bootstrap.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="/static/js/jquery.easing.min.js"></script>
+
+    <!-- Theme JavaScript -->
+    <script src="/static/js/grayscale.min.js"></script>
+
+  </body>
+</html>
