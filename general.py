@@ -80,3 +80,21 @@ def categorize_data(dframe, dframe_categories):
         item_indices = sorted([item for sublist in item_indices for item in sublist], key=int)
         dframe.ix[item_indices, 'Category'] = dframe_categories.ix[ind, 'category_name']
     return dframe
+
+def style_plot(plot):
+    # Borders & Backgound
+    plot.min_border_left = plot.min_border_right = 20
+    plot.grid.minor_grid_line_color = '#eeeeee'
+    plot.border_fill_color = "black"
+
+    # Axes & Text
+    plot.xaxis.axis_label_text_color = plot.yaxis.axis_label_text_color = "white"
+    plot.xaxis.major_tick_line_color = plot.xaxis.minor_tick_line_color = \
+        plot.yaxis.minor_tick_line_color = plot.yaxis.major_tick_line_color = "white"
+    plot.title.text_color = plot.xaxis.major_label_text_color = plot.yaxis.major_label_text_color = "white"
+    plot.xaxis.axis_line_color = plot.yaxis.axis_line_color = "white"
+
+    # Legend
+    plot.legend.background_fill_color = "#e6e6e6"
+    plot.legend.background_fill_alpha = 0.4
+    plot.legend.label_text_font_style = "bold"

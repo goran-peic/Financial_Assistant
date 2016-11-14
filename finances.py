@@ -1,14 +1,14 @@
 from flask import flash, render_template, request, redirect, url_for
-from general import User, Categories, app, db, stacked, sql_to_pandas, categorize_data
+from general import User, Categories, app, db, stacked, sql_to_pandas, categorize_data, style_plot
 from flask_login import LoginManager, login_required, login_user, logout_user
 import pandas as pd
 import numpy as np
+from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 from bokeh.models import NumeralTickFormatter, DatetimeTickFormatter
-from bokeh.embed import file_html, components
-from bokeh.resources import CDN
+from bokeh.embed import components
 from jinja2 import Environment
-import io, csv, re
+import io, csv
 
 
 env = Environment(extensions=['jinja2.ext.autoescape'])
@@ -93,6 +93,7 @@ def delete_category(id):
 @app.route("/dashboard/<name>", methods=["POST"])
 @login_required
 def upload_data(name):
+    # Load CSV File
     f = request.files['csv_file']
     if not f:
         return 'No file'
@@ -104,132 +105,47 @@ def upload_data(name):
     dframe['Date'] = pd.to_datetime(dframe['Date'], format='%m/%d/%Y')
     dframe['Amount'] = dframe['Amount'].astype(float).fillna(0.0)
 
+    # Import User Categories & Categorize Their Data
     dframe_categories = sql_to_pandas(Categories.query.filter_by(username=name))
     dframe_categories = dframe_categories.ix[:, ['id', 'category_name', 'keywords']]
     list_of_categories = dframe_categories['category_name'].tolist()
     dframe = categorize_data(dframe=dframe, dframe_categories=dframe_categories)
     dframe_grouped = dframe.groupby([pd.Grouper(freq='MS', key='Date'), 'Category']).sum().unstack().fillna(0.0) #.reset_index()
     final_df = dframe_grouped.xs('Amount', axis=1, drop_level=True).xs(list_of_categories, axis=1, drop_level=True)
+    final_df[list_of_categories] = final_df[list_of_categories].apply(lambda x: x * -1)
     print(final_df)
 
+    # Create Plot
+    TOOLS = "pan,box_zoom,undo,reset,save"
+    expenditures_plot = figure(title="Expenditures", x_axis_type = 'datetime', tools=TOOLS, width=700, height=350,
+                               responsive=True, toolbar_location="above")
+
+    spectral = list(np.random.choice(Spectral6, len(list_of_categories), replace=False))
     areas = stacked(final_df, list_of_categories)
     colors = list(areas.keys())
-    for index, key in enumerate(colors):
-        if key == "Groceries":
-            colors[index] = 'green'
-        elif key == "Amazon":
-            colors[index] = 'yellow'
-        elif key == 'Health':
-            colors[index] = 'white'
-        else:
-            colors[index] = 'blue'
-
-    print(final_df.index)
+    for ind in range(len(list_of_categories)):
+        colors[ind] = spectral[ind]
 
     date = np.hstack((final_df.index[::-1], final_df.index))
-    print(date)
-    print(areas)
-    print(colors)
-
-    TOOLS = "pan,box_zoom,undo,reset,save"
-    expenditures_plot = figure(title="Expenditures", x_axis_type = 'datetime',
-        tools=TOOLS, width=700, height=350, responsive=True, toolbar_location="above")
-    expenditures_plot.grid.minor_grid_line_color = '#eeeeee'
-
     expenditures_plot.patches([date] * len(areas), [areas[cat] for cat in list_of_categories], color=colors, alpha=1,
-        line_color=None)
+                              line_color=None)
 
-    expenditures_plot.min_border_left = 20; expenditures_plot.min_border_right = 20
+    # Style Plot
     expenditures_plot.xaxis.axis_label = "Date"
     expenditures_plot.yaxis.axis_label = "Amount"
-    expenditures_plot.border_fill_color = "black"
-    expenditures_plot.xaxis.axis_label_text_color = \
-        expenditures_plot.yaxis.axis_label_text_color = "white"
-    expenditures_plot.xaxis.major_tick_line_color = expenditures_plot.xaxis.minor_tick_line_color = \
-        expenditures_plot.yaxis.minor_tick_line_color = expenditures_plot.yaxis.major_tick_line_color = "white"
-    expenditures_plot.title.text_color = expenditures_plot.xaxis.major_label_text_color = \
-        expenditures_plot.yaxis.major_label_text_color = "white"
-    expenditures_plot.xaxis.axis_line_color = expenditures_plot.yaxis.axis_line_color = "white"
-
+    style_plot(expenditures_plot)
     for a, area in enumerate(areas):
         expenditures_plot.patch(date, areas[area], color=colors[a], legend=area, alpha=1, line_color=None)
-
-    expenditures_plot.legend.background_fill_color = "#e6e6e6"
-    expenditures_plot.legend.background_fill_alpha = 0.4
-    expenditures_plot.legend.label_text_font_style = "bold"
-
-    expenditures_plot.yaxis[0].formatter = NumeralTickFormatter(format="$0,0")
+    expenditures_plot.yaxis.formatter = NumeralTickFormatter(format="$0,0")
     expenditures_plot.xaxis.formatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"], years=["%b %Y"])) #days=["%d %B %Y"],
 
-    plots_created = True
-    colNames = ['category_name', 'keywords']
     js_script, div = components(expenditures_plot)
+    plots_created = True
+
     return render_template('dashboard.html', name=name, plots_created=plots_created, js_script=js_script,
-                           colNames=colNames, dframe_categories=dframe_categories, div=div)
+                           colNames=['category_name', 'keywords'], dframe_categories=dframe_categories, div=div)
 
 
 if __name__ == "__main__":
     db.create_all()
     app.run(debug=True)
-
-'''
-    ### PLOT
-
-    dframe2 = dframe[:]
-    dframe2['Grass Share'] = dframe2['grass_count'] / (
-    dframe2['grass_count'] + dframe2['sheep_count'] + dframe2['wolf_count'])
-    dframe2['Sheep Share'] = dframe2['sheep_count'] / (
-    dframe2['grass_count'] + dframe2['sheep_count'] + dframe2['wolf_count'])
-    dframe2['Wolf Share'] = dframe2['wolf_count'] / (
-    dframe2['grass_count'] + dframe2['sheep_count'] + dframe2['wolf_count'])
-    dframe2 = dframe2.ix[:, ['iter', 'Grass Share', 'Sheep Share', 'Wolf Share']]
-
-    categories = ['Grass Share', 'Sheep Share', 'Wolf Share']
-    areas = stacked(dframe2, categories)
-    colors = list(areas.keys())
-    for index, key in enumerate(colors):
-      if key == "Grass Share":
-        colors[index] = 'green'
-      elif key == "Wolf Share":
-        colors[index] = 'red'
-      else:
-        colors[index] = 'white'
-
-    iter2 = np.hstack((dframe2['iter'][::-1], dframe2['iter']))
-
-    TOOLS = "pan,box_zoom,undo,reset,save"
-    expenditures_plot = figure(x_range=(1, len(dframe2['iter'])-1), y_range=(0, 1), title="Population Evolution (Shares)",
-                            tools=TOOLS, width=700, height=350, responsive=True, toolbar_location="above")
-    creature_plot2.grid.minor_grid_line_color = '#eeeeee'
-
-    creature_plot2.patches([iter2] * len(areas), [areas[cat] for cat in categories], color=colors, alpha=1,
-                           line_color=None)
-
-    creature_plot2.min_border_left = 20; creature_plot2.min_border_right = 20
-    creature_plot2.xaxis.axis_label = "Iteration"
-    creature_plot2.yaxis.axis_label = "Share"
-    creature_plot2.border_fill_color = "black"
-    creature_plot2.xaxis.axis_label_text_color = \
-      creature_plot2.yaxis.axis_label_text_color = "white"
-    creature_plot2.xaxis.major_tick_line_color = creature_plot2.xaxis.minor_tick_line_color = \
-      creature_plot2.yaxis.minor_tick_line_color = creature_plot2.yaxis.major_tick_line_color = "white"
-    creature_plot2.title.text_color = creature_plot2.xaxis.major_label_text_color = \
-      creature_plot2.yaxis.major_label_text_color = "white"
-    creature_plot2.xaxis.axis_line_color = creature_plot2.yaxis.axis_line_color = "white"
-
-    for a, area in enumerate(areas):
-      creature_plot2.patch(iter2, areas[area], color=colors[a], legend=area, alpha=1, line_color=None)
-
-    creature_plot2.legend.background_fill_color = "#e6e6e6"
-    creature_plot2.legend.background_fill_alpha = 0.4
-    creature_plot2.legend.label_text_font_style = "bold"
-
-    creature_plot2.yaxis[0].formatter = NumeralTickFormatter(format="0%")
-
-    html_text2 = file_html(creature_plot2, CDN, "Population Evolution")
-    element_id2 = html_text2[
-                 re.search("elementid", html_text2).start() + 12: re.search("elementid", html_text2).start() + 48]
-    js_script2 = html_text2[re.search(r"function()", html_text2).start() - 8 : re.search("Bokeh.embed.embed_items",
-                                                                                         html_text2).start() + 61]
-
-'''
