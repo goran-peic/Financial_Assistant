@@ -64,35 +64,39 @@
 </div><div class="col-md-2"> <a class="navbar-brand">Welcome, {{ name }}! </a> </div></div></div>
     </nav>
 
-<div class="col-md-12">
-  <div class="container">
-    <h2>Your Categories</h2>
+<div class="col-md-12" style="padding-top:75px">
+  <div class="col-md-6">
+    <form action="{{ url_for('upload_data', name=name) }}" method="POST" enctype="multipart/form-data">
+      <input type="file" name="csv_file" />
+      <input type="submit" />
+    </form>
+  </div>
+  <div class="col-md-6">
+  <div class="container" style="margin:auto; width:50%;">
+    <h3>Your Categories</h3>
   </div>
   <table class="table table-striped">
     <thead>
       <tr>
-        {% for colName in colNames %}
-        <th> {{ colName }} </th>
-        {% endfor %}
+        <th> Name </th> <th> Keywords </th>
       </tr>
     </thead>
     <tbody>
       {% for row in range(dframe_categories.index|length) %}
-      <tr> {% for val in dframe_categories.ix[row, colNames] %} <td> {{ val }} </td> {% endfor %}
-        <td><form method="post" action={{ url_for("delete_category", id=dframe_categories.ix[row, "id"]) }}>
-          <button type="submit" class="btn btn-outline-success btn-sm" value="{{ dframe_categories.ix[row, "id"] }}" name="delete">Delete</button>
+      <tr> {% for val in dframe_categories.ix[row, colNames] %} <td style="background-color:#000;"> {{ val }} </td> {% endfor %}
+        <td style="background-color:#000;"><form method="post" action={{ url_for("delete_category", id=dframe_categories.ix[row, "id"]) }}>
+          <button type="submit" class="btn btn-danger" value="{{ dframe_categories.ix[row, "id"] }}" name="delete">
+          <img src="/static/img/trash1.png" style="width:30px;height:30px;">
+          </button>
           </form>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-</div>
 
-    <div class="container theme-showcase" role="main">
-
-     <h3>Add Category</h3>
-     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#popUpWindow">Open Form</button>
+    <div class="container" style="margin:auto; width:150px">
+     <button type="button" class="btn btn-success" data-toggle="modal" data-target="#popUpWindow">Add Category</button>
      <div class="modal fade" id="popUpWindow">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -100,7 +104,7 @@
           <! --- HEADER --->
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h3 class="modal-title">Enter Category and Specify Keywords</h3>
+            <h3 class="modal-title" style="color:#000; font-size:20px">Enter Category and Specify Keywords</h3>
           </div>
 
           <! --- BODY --->
@@ -121,19 +125,15 @@
             <button class="btn btn-primary btn-block" value="send" type="submit" name="action">Submit</button>
           </div>
           </form>
-
+</div>
         </div>
       </div>
      </div>
 
-      <div class="col-md-12" style="padding-bottom:20px;"></div>
+  </div>
+</div>
 
-    <form action="{{ url_for('upload_data', name=name) }}" method="POST" enctype="multipart/form-data">
-        <input type="file" name="csv_file" />
-        <input type="submit" />
-    </form>
-
-      <div class="col-md-12" style="padding-bottom:20px;"></div>
+<div class="container theme-showcase" role="main">
 
 {% if plots_created %}
 
@@ -177,3 +177,8 @@
 
   </body>
 </html>
+
+<!--
+<button type="submit" class="btn btn-danger" value="jinj_braces dframe_categories.ix[row, "id"] jinj_braces" name="delete">Delete</button>
+<div class="col-md-12" style="padding-bottom:20px;"></div>
+-->

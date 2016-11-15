@@ -1,3 +1,2 @@
-- wrap plot styling inside fn 
 - limit nr of allowed categories
-- draw appropriate nr of colors randomly w/o replacement from max set of categories
+- add income as separate category & plot as special line
