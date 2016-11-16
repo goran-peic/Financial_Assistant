@@ -51,12 +51,12 @@
 
     <div class="container">
       <form class="form-signin" method="POST">
-        <h2 class="form-signin-heading">Registration Form</h2>
+        <div class="col-md-12" style="text-align:center"><h2 class="form-signin-heading">Registration</h2></div>
         <label for="username" class="sr-only">Enter Username</label>
-        <input type="text" id="username" name="username" class="form-control" placeholder="Enter Username"
+        <input type="text" id="username" name="username" class="form-control" placeholder="Username"
                value="{{ request.form.username }}" required autofocus>
         <label for="password" class="sr-only">Password</label>
-        <input type="password" id="password" name="password" class="form-control" placeholder="Enter Password"
+        <input type="password" id="password" name="password" class="form-control" placeholder="Password"
                value="{{ request.form.password }}" required>
         <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
       </form>

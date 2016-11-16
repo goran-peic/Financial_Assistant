@@ -95,6 +95,6 @@ def style_plot(plot):
     plot.xaxis.axis_line_color = plot.yaxis.axis_line_color = "white"
 
     # Legend
-    plot.legend.background_fill_color = "#e6e6e6"
-    plot.legend.background_fill_alpha = 0.4
+    plot.legend.background_fill_color = "gray" # "#e6e6e6"
+    plot.legend.background_fill_alpha = 0.5
     plot.legend.label_text_font_style = "bold"

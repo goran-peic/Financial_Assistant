@@ -80,20 +80,20 @@
     </div>
     <div class="col-md-12" align="center" style="padding-bottom:15px">
       <form action="{{ url_for('upload_data', name=name) }}" method="POST" enctype="multipart/form-data">
-    <div class="container" style="margin:auto; width:150px">
-        <input type="file" name="csv_file" />
+    <div class="container" style="margin:auto; width:150px; padding-top:15px">
+        <input type="file" name="csv_file" style="margin-left:15px; padding-bottom:10px"/>
     </div>
-      <div class="container" style="align:center; padding-top:25px">
-        <button type="submit" class="btn btn-success">Analyze Data</button>
+      <div class="container" style="margin:auto; width:250px; padding-top:15px"><!-- <div class="container" style="align:center; padding-top:25px"> -->
+        <button type="submit" class="btn btn-success">Generate Report</button>
       </div>
     </form>
     </div>
   </div>
   <div class="col-md-6">
   <div class="container" style="margin:auto; width:30%;">
-    <h3>Categories</h3>
+    <h3 style="margin:0 0 15px">Categories</h3>
   </div>
-  <table class="table table-striped">
+  <table class="table table-striped" style="margin-bottom:10px">
     <thead>
       <tr>
         <th> Name </th> <th> Keywords </th>
@@ -113,8 +113,8 @@
     </tbody>
   </table>
 
-    <div class="col-md-12" style="padding-right:0">
-     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#popUpWindow" style="float:right;margin-right:7px">
+    <div class="col-md-12" style="padding-right:0;">
+     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#popUpWindow" style="float:right;margin-right:8px">
        <img src="/static/img/add3.png" style="width:30px;height:30px;">
      </button>
      <div class="modal fade" id="popUpWindow">
@@ -142,7 +142,7 @@
             </div>
           <! --- FOOTER (button to submit) --->
           <div class="modal-footer">
-            <button class="btn btn-success" value="send" type="submit" name="action">Submit</button>
+            <button class="btn btn-primary" value="send" type="submit" name="action">Submit</button>
           </div>
           </form>
           </div>
@@ -177,7 +177,7 @@
     <!-- Footer -->
     <footer>
         <div class="container text-center">
-            <p style="font-size:15px">Copyright &copy; Goran Peic 2016</p>
+            <p style="font-size:15px">Copyright &copy; Goran Peic 2017</p>
         </div>
     </footer>
 
