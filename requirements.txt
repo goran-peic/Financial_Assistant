@@ -6,3 +6,4 @@ pandas==0.19.1
 bokeh==0.12.3
 jinja2==2.8
 flask_login==0.4.0
+flask_sqlalchemy==2.1
