@@ -4,11 +4,12 @@ from pandas import DataFrame
 from re import search
 import numpy as np
 
+
 app = Flask(__name__)
 db = SQLAlchemy(app)
-
-app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:1malizabac@localhost/myDB'
+app.config["SQLALCHEMY_DATABASE_URI"] = 'postgres://msxfcphdhrrtzh:-0ju6mMOrikn9BkyS6AchPr3d_@ec2-54-163-245-32.compute-1.amazonaws.com:5432/dbtrgfqrofvsvd' # 'postgresql://postgres:1malizabac@localhost/myDB'
 app.config["SECRET_KEY"] = 'GiveMeABreak'
+
 
 class User(db.Model):
 
