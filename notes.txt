@@ -1,24 +1,14 @@
-- limit nr of allowed categories (reject if user attempts to add more)
 - add income as separate category & plot as special line
-
-- increase nr of ticks on x-axis
-- change plot background somehow
-- adjust cat colors (opacity or something)
-
-- add warning message if user uploads incorrectly formatted file (exception handling for dates; if statements for number of columns, test zero data points -- blank canvass should display)
-
-- lower position of 'choose file' and analyze data wrt to it; push up add cat button
-- update landing page
-
-- increase max limit for sql string storage of keywords
-
-- make colors constant, get rid of random sampling, choose first 1:len(list_of_cat)
-
-- vertically center delete cat buttons
-
-- move gen report button to left, centered under img
-
 - generalize keyword search to be flexible about comma spaces.
 
-
+DONE
+- limit nr of allowed categories (reject if user attempts to add more)
+- add 'report' heading above plot
+- move gen report button to left, centered under img
+- increase max limit for sql string storage of keywords
+- lower position of 'choose file' and analyze data wrt to it; push up add cat button
+- update landing page
+- added exception handling for incorrectly formatted files
+- updated plot colors & changed plot background
+- vertically center delete cat buttons
 

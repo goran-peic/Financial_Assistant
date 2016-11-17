@@ -42,7 +42,7 @@ class Categories(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), db.ForeignKey("users.username"))
     category_name = db.Column(db.String(100), unique=False)
-    keywords = db.Column(db.String(200), unique=False)
+    keywords = db.Column(db.String(300), unique=False)
     user = db.relationship("User", lazy="select", backref="categories")
 
     def __init__(self, username, category_name, keywords):
@@ -72,7 +72,7 @@ def categorize_data(dframe, dframe_categories):
     dframe['Category'] = ''
     for ind in range(len(dframe_categories.index)):
         list_of_descriptions = list(dframe['Description'])
-        list_of_keywords = dframe_categories.ix[ind, 'keywords'].split(', ')
+        list_of_keywords = dframe_categories.ix[ind, 'keywords'].split(',')
         item_indices = list()
         for keyword in list_of_keywords:
             item_indices.append([idx for idx, description in enumerate(list_of_descriptions) if search(keyword + '\s',
@@ -86,6 +86,8 @@ def style_plot(plot):
     plot.min_border_left = plot.min_border_right = 20
     plot.grid.minor_grid_line_color = '#eeeeee'
     plot.border_fill_color = "black"
+    plot.background_fill_color = "beige"
+    plot.background_fill_alpha = 0.6
 
     # Axes & Text
     plot.xaxis.axis_label_text_color = plot.yaxis.axis_label_text_color = "white"

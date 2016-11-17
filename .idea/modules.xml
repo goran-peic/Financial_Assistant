@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../ABM/.idea/ABM.iml" filepath="$PROJECT_DIR$/../ABM/.idea/ABM.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Household_Finances.iml" filepath="$PROJECT_DIR$/.idea/Household_Finances.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../JobTracker/.idea/Web.iml" filepath="$PROJECT_DIR$/../JobTracker/.idea/Web.iml" />
     </modules>
   </component>
 </project>
