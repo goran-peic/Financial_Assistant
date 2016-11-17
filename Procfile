@@ -1,1 +1,1 @@
-web: gunicorn job_tracker:app
+web: gunicorn finances:app

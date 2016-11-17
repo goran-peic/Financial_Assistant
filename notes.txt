@@ -1,14 +1,3 @@
 - add income as separate category & plot as special line
-- generalize keyword search to be flexible about comma spaces.
 
-DONE
-- limit nr of allowed categories (reject if user attempts to add more)
-- add 'report' heading above plot
-- move gen report button to left, centered under img
-- increase max limit for sql string storage of keywords
-- lower position of 'choose file' and analyze data wrt to it; push up add cat button
-- update landing page
-- added exception handling for incorrectly formatted files
-- updated plot colors & changed plot background
-- vertically center delete cat buttons
 
