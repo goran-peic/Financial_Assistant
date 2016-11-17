@@ -75,15 +75,9 @@ def dashboard(name):
 @app.route("/submit_category/<name>", methods=["POST"])
 @login_required
 def submit_category(name):
-    dframe_categories = sql_to_pandas(Categories.query.filter_by(username=name))
-    list_of_categories = dframe_categories['category_name'].tolist()
-    if len(list_of_categories) == 6:
-        flash('You have reached the maximum number of categories allowed!')
-        return redirect(url_for("dashboard", name=name))
-    else:
-        category = Categories(name, request.form["category_name"], request.form["keywords"])
-        db.session.add(category)
-        db.session.commit()
+    category = Categories(name, request.form["category_name"], request.form["keywords"])
+    db.session.add(category)
+    db.session.commit()
     return redirect(url_for("dashboard", name=name))
 
 @app.route("/delete_category/<int:id>", methods=["POST"])
