@@ -149,6 +149,8 @@ def upload_data(name):
             expenditures_plot.patch(date, areas[area], color=colors[a], legend=area, alpha=1, line_color=None)
         expenditures_plot.yaxis.formatter = NumeralTickFormatter(format="$0,0")
         expenditures_plot.xaxis.formatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"], years=["%b %Y"])) # days=["%d %B %Y"],
+        expenditures_plot.legend.orientation = "horizontal"
+        expenditures_plot.legend.background_fill_alpha = 0.7
 
         js_script, div = components(expenditures_plot)
         plots_created = True

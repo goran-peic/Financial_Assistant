@@ -5,9 +5,9 @@ from re import search
 import numpy as np
 
 
-# app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:1malizabac@localhost/myDB'
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'postgres://msxfcphdhrrtzh:-0ju6mMOrikn9BkyS6AchPr3d_@ec2-54-163-245-32.compute-1.amazonaws.com:5432/dbtrgfqrofvsvd'
+# app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:1malizabac@localhost/myDB'
 app.config["SECRET_KEY"] = 'GiveMeABreak'
 db = SQLAlchemy(app)
 
@@ -100,5 +100,5 @@ def style_plot(plot):
 
     # Legend
     plot.legend.background_fill_color = "gray" # "#e6e6e6"
-    plot.legend.background_fill_alpha = 0.5
+    plot.legend.background_fill_alpha = 0.1
     plot.legend.label_text_font_style = "bold"
