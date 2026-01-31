@@ -2,17 +2,19 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from pandas import DataFrame
 from re import search
+from flask_login import UserMixin
 import numpy as np
 
 
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = 'postgres://msxfcphdhrrtzh:-0ju6mMOrikn9BkyS6AchPr3d_@ec2-54-163-245-32.compute-1.amazonaws.com:5432/dbtrgfqrofvsvd'
+# app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://msxfcphdhrrtzh:-0ju6mMOrikn9BkyS6AchPr3d_@ec2-54-163-245-32.compute-1.amazonaws.com:5432/dbtrgfqrofvsvd'
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
 # app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:1malizabac@localhost/myDB'
 app.config["SECRET_KEY"] = 'GiveMeABreak'
 db = SQLAlchemy(app)
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
 
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
@@ -22,18 +24,6 @@ class User(db.Model):
     def __init__(self, username, password):
         self.username = username
         self.password = password
-
-    def is_active(self):
-        return True
-
-    def get_id(self):
-        return self.id
-
-    def is_authenticated(self):
-        return self.authenticated
-
-    def is_anonymous(self):
-        return False
 
     def __repr__(self):
         return self.username
@@ -74,13 +64,13 @@ def categorize_data(dframe, dframe_categories):
     dframe['Category'] = ''
     for ind in range(len(dframe_categories.index)):
         list_of_descriptions = list(dframe['Description'])
-        list_of_keywords = dframe_categories.ix[ind, 'keywords'].split(',')
+        list_of_keywords = dframe_categories.iloc[ind]['keywords'].split(',')
         item_indices = list()
         for keyword in list_of_keywords:
             item_indices.append([idx for idx, description in enumerate(list_of_descriptions) if search(keyword + '\s',
                                                                                                 description) is not None])
         item_indices = sorted([item for sublist in item_indices for item in sublist], key=int)
-        dframe.ix[item_indices, 'Category'] = dframe_categories.ix[ind, 'category_name']
+        dframe.loc[item_indices, 'Category'] = dframe_categories.iloc[ind]['category_name']
     return dframe
 
 def style_plot(plot):
@@ -99,6 +89,7 @@ def style_plot(plot):
     plot.xaxis.axis_line_color = plot.yaxis.axis_line_color = "white"
 
     # Legend
-    plot.legend.background_fill_color = "gray" # "#e6e6e6"
-    plot.legend.background_fill_alpha = 0.1
-    plot.legend.label_text_font_style = "bold"
+    if hasattr(plot, 'legend') and len(plot.legend) > 0:
+        plot.legend[0].background_fill_color = "gray" # "#e6e6e6"
+        plot.legend[0].background_fill_alpha = 0.1
+        plot.legend[0].label_text_font_style = "bold"

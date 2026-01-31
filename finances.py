@@ -7,19 +7,19 @@ from bokeh.palettes import inferno
 from bokeh.plotting import figure
 from bokeh.models import NumeralTickFormatter, DatetimeTickFormatter
 from bokeh.embed import components
-from jinja2 import Environment
+from bokeh.resources import CDN
 import io, csv
 
+app.config["SECRET_KEY"] = "ITSASECRET"
 
-env = Environment(extensions=['jinja2.ext.autoescape'])
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
 
 @login_manager.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 @app.route("/", methods=["GET"])
 def index():
@@ -43,7 +43,7 @@ def register():
 def login():
     if request.method == "GET":
         return render_template("login.html")
-    elif request.method == "POST":
+    else:
         username = request.form["username"]
         password = request.form["password"]
         registered_user = User.query.filter_by(username=username, password=password).first()
@@ -63,14 +63,97 @@ def logout():
     logout_user()
     return redirect(url_for("index"))
 
-@app.route("/dashboard/<name>", methods=["GET"])
+@app.route("/dashboard/<name>", methods=["GET", "POST"])
 @login_required
 def dashboard(name):
+    # Common logic for GET and POST
     all_categories = Categories.query.filter_by(username=name)
     dframe_categories = sql_to_pandas(all_categories)
-    dframe_categories = dframe_categories.ix[:, ['id', 'category_name', 'keywords']]
-    colNames = ['category_name', 'keywords']
-    return render_template("dashboard.html", name=name, colNames=colNames, dframe_categories=dframe_categories)
+    
+    if dframe_categories.empty:
+        dframe_categories = pd.DataFrame(columns=['id', 'category_name', 'keywords'])
+    else:
+        dframe_categories = dframe_categories.loc[:, ['id', 'category_name', 'keywords']]
+        
+    col_names = ['category_name', 'keywords']
+
+    if request.method == "GET":
+        return render_template("dashboard.html", name=name, colNames=col_names, dframe_categories=dframe_categories, resources=CDN.render())
+
+    elif request.method == "POST":
+        # Load CSV File
+        f = request.files.get('csv_file')
+        if not f:
+            flash('Please submit your raw data before requesting the report!')
+            return redirect(url_for("dashboard", name=name))
+        stream = io.StringIO(f.stream.read().decode('UTF8'), newline=None)
+        csv_input = csv.reader(stream)
+        data_list = [row for row in csv_input]
+        columns = ['Date', 'Amount', 'Description']
+        while True:
+            try:
+                dframe = pd.DataFrame(data_list, columns=columns)
+                break
+            except AssertionError:
+                flash('Your CSV file is unreadable. Please check its format (columns, data, etc.).')
+                return redirect(url_for("dashboard", name=name))
+        dframe['Date'] = pd.to_datetime(dframe['Date'], format='%m/%d/%Y')
+        dframe['Amount'] = dframe['Amount'].astype(float).fillna(0.0)
+
+        # Import User Categories & Categorize Their Data
+        dframe_categories_sql = sql_to_pandas(Categories.query.filter_by(username=name))
+        if dframe_categories_sql.empty:
+            flash('Please specify at least one category!')
+            return redirect(url_for("dashboard", name=name))
+        else:
+            dframe_categories_sql = dframe_categories_sql.loc[:, ['id', 'category_name', 'keywords']]
+            list_of_categories = dframe_categories_sql['category_name'].tolist()
+            dframe = categorize_data(dframe=dframe, dframe_categories=dframe_categories_sql)
+            dframe_grouped = dframe.groupby([pd.Grouper(freq='MS', key='Date'), 'Category']).sum().unstack().fillna(0.0) #.reset_index()
+            
+            final_df = dframe_grouped.xs('Amount', axis=1, drop_level=True)
+            final_df = final_df.reindex(columns=list_of_categories, fill_value=0.0)
+            
+            final_df[list_of_categories] = final_df[list_of_categories].apply(lambda x: x * -1)
+            print(final_df)
+
+            # Create Plot
+            tools = "pan,box_zoom,undo,reset,save"
+            expenditures_plot = figure(title="Expenditures", x_axis_type = 'datetime', tools=tools, width=700, height=350,
+                                       sizing_mode="scale_width", toolbar_location="above")
+
+            spectral = inferno(len(list_of_categories))
+            areas = stacked(final_df, list_of_categories)
+            colors = list(areas.keys())
+            for ind in range(len(list_of_categories)):
+                colors[ind] = spectral[ind]
+
+            date = np.hstack((final_df.index[::-1], final_df.index))
+            expenditures_plot.patches([date] * len(areas), [areas[cat] for cat in list_of_categories], color=colors, alpha=1,
+                                      line_color=None)
+
+            # Style Plot
+            expenditures_plot.xaxis.axis_label = "Date"
+            expenditures_plot.yaxis.axis_label = "Amount"
+            
+            for a, area in enumerate(areas):
+                expenditures_plot.patch(date, areas[area], color=colors[a], legend_label=area, alpha=1, line_color=None)
+                
+            style_plot(expenditures_plot)
+            
+            expenditures_plot.yaxis.formatter = NumeralTickFormatter(format="$0,0")
+            expenditures_plot.xaxis.formatter = DatetimeTickFormatter(months="%b %Y", years="%b %Y") # days=["%d %B %Y"],
+            
+            if hasattr(expenditures_plot, 'legend') and len(expenditures_plot.legend) > 0:
+                expenditures_plot.legend[0].orientation = "horizontal"
+                expenditures_plot.legend[0].background_fill_alpha = 0.7
+
+            js_script, div = components(expenditures_plot)
+            plots_created = True
+
+            return render_template('dashboard.html', name=name, plots_created=plots_created, js_script=js_script,
+                                   colNames=['category_name', 'keywords'], dframe_categories=dframe_categories, div=div,
+                                   resources=CDN.render())
 
 @app.route("/submit_category/<name>", methods=["POST"])
 @login_required
@@ -80,85 +163,18 @@ def submit_category(name):
     db.session.commit()
     return redirect(url_for("dashboard", name=name))
 
-@app.route("/delete_category/<int:id>", methods=["POST"])
+@app.route("/delete_category/<int:category_id>", methods=["POST"])
 @login_required
-def delete_category(id):
-    user = pd.DataFrame.from_records([rec.__dict__ for rec in Categories.query.filter_by(id=id).all()])
-    username = user["username"].astype("str")[0]
-    delcat = Categories.query.get(int(request.form["delete"]))
-    db.session.delete(delcat)
-    db.session.commit()
-    return redirect(url_for("dashboard", name=username))
-
-@app.route("/dashboard/<name>", methods=["GET", "POST"])
-@login_required
-def upload_data(name):
-    # Load CSV File
-    f = request.files['csv_file']
-    if not f:
-        flash('Please submit your raw data before requesting the report!')
-        return redirect(url_for("dashboard", name=name))
-    stream = io.StringIO(f.stream.read().decode('UTF8'), newline=None)
-    csv_input = csv.reader(stream)
-    data_list = [row for row in csv_input]
-    columns = ['Date', 'Amount', 'Description']
-    while True:
-        try:
-            dframe = pd.DataFrame(data_list, columns=columns)
-            break
-        except AssertionError:
-            flash('Your CSV file is unreadable. Please check its format (columns, data, etc.).')
-            return redirect(url_for("dashboard", name=name))
-    dframe['Date'] = pd.to_datetime(dframe['Date'], format='%m/%d/%Y')
-    dframe['Amount'] = dframe['Amount'].astype(float).fillna(0.0)
-
-    # Import User Categories & Categorize Their Data
-    dframe_categories = sql_to_pandas(Categories.query.filter_by(username=name))
-    if dframe_categories.empty:
-        flash('Please specify at least one category!')
-        return redirect(url_for("dashboard", name=name))
-    else:
-        dframe_categories = dframe_categories.ix[:, ['id', 'category_name', 'keywords']]
-        list_of_categories = dframe_categories['category_name'].tolist()
-        dframe = categorize_data(dframe=dframe, dframe_categories=dframe_categories)
-        dframe_grouped = dframe.groupby([pd.Grouper(freq='MS', key='Date'), 'Category']).sum().unstack().fillna(0.0) #.reset_index()
-        final_df = dframe_grouped.xs('Amount', axis=1, drop_level=True).xs(list_of_categories, axis=1, drop_level=True)
-        final_df[list_of_categories] = final_df[list_of_categories].apply(lambda x: x * -1)
-        print(final_df)
-
-        # Create Plot
-        TOOLS = "pan,box_zoom,undo,reset,save"
-        expenditures_plot = figure(title="Expenditures", x_axis_type = 'datetime', tools=TOOLS, width=700, height=350,
-                                   responsive=True, toolbar_location="above")
-
-        spectral = inferno(len(list_of_categories))
-        areas = stacked(final_df, list_of_categories)
-        colors = list(areas.keys())
-        for ind in range(len(list_of_categories)):
-            colors[ind] = spectral[ind]
-
-        date = np.hstack((final_df.index[::-1], final_df.index))
-        expenditures_plot.patches([date] * len(areas), [areas[cat] for cat in list_of_categories], color=colors, alpha=1,
-                                  line_color=None)
-
-        # Style Plot
-        expenditures_plot.xaxis.axis_label = "Date"
-        expenditures_plot.yaxis.axis_label = "Amount"
-        style_plot(expenditures_plot)
-        for a, area in enumerate(areas):
-            expenditures_plot.patch(date, areas[area], color=colors[a], legend=area, alpha=1, line_color=None)
-        expenditures_plot.yaxis.formatter = NumeralTickFormatter(format="$0,0")
-        expenditures_plot.xaxis.formatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"], years=["%b %Y"])) # days=["%d %B %Y"],
-        expenditures_plot.legend.orientation = "horizontal"
-        expenditures_plot.legend.background_fill_alpha = 0.7
-
-        js_script, div = components(expenditures_plot)
-        plots_created = True
-
-        return render_template('dashboard.html', name=name, plots_created=plots_created, js_script=js_script,
-                               colNames=['category_name', 'keywords'], dframe_categories=dframe_categories, div=div)
-
+def delete_category(category_id):
+    delcat = Categories.query.get(category_id)
+    if delcat:
+        username = delcat.username
+        db.session.delete(delcat)
+        db.session.commit()
+        return redirect(url_for("dashboard", name=username))
+    return redirect(url_for("index"))
 
 if __name__ == "__main__":
-    db.create_all()
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
+    app.run(debug=False)

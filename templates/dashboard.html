@@ -20,14 +20,8 @@
 
     <!-- Theme CSS -->
     <link href="/static/css/grayscale.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/bokeh-0.12.1.min.css" type="text/css" />
-    <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.3.min.css" type="text/css" />
 
-    <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.3.min.js"></script>
-    <script type="text/javascript">
-        Bokeh.set_log_level("info");
-    </script>
-
+    {{ resources|safe }}
 
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -79,7 +73,7 @@
       <img src="/static/img/csv_example.png" style="max-width:100%;max-height:100%;"/>
     </div>
     <div class="col-md-12" align="center" style="padding-bottom:15px">
-      <form action="{{ url_for('upload_data', name=name) }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ url_for('dashboard', name=name) }}" method="POST" enctype="multipart/form-data">
     <div class="container" style="margin:auto; width:150px; padding-top:15px">
         <input type="file" name="csv_file" style="margin-left:15px; padding-bottom:10px"/>
     </div>
@@ -101,9 +95,9 @@
     </thead>
     <tbody>
       {% for row in range(dframe_categories.index|length) %}
-      <tr> {% for val in dframe_categories.ix[row, colNames] %} <td style="background-color:#000;"> {{ val }} </td> {% endfor %}
-        <td style="background-color:#000; vertical-align:middle"><form method="post" action={{ url_for("delete_category", id=dframe_categories.ix[row, "id"]) }}>
-          <button type="submit" class="btn btn-danger" value="{{ dframe_categories.ix[row, "id"] }}" name="delete">
+      <tr> {% for val in dframe_categories.iloc[row][colNames] %} <td style="background-color:#000;"> {{ val }} </td> {% endfor %}
+        <td style="background-color:#000; vertical-align:middle"><form method="post" action={{ url_for("delete_category", category_id=dframe_categories.iloc[row]["id"]) }}>
+          <button type="submit" class="btn btn-danger" value="{{ dframe_categories.iloc[row]["id"] }}" name="delete">
           <img src="/static/img/trash1.png" style="width:30px;height:30px;">
           </button>
           </form>
