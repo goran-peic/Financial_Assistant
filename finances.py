@@ -19,7 +19,7 @@ login_manager.login_view = "login"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 @app.route("/", methods=["GET"])
 def index():
@@ -166,7 +166,7 @@ def submit_category(name):
 @app.route("/delete_category/<int:category_id>", methods=["POST"])
 @login_required
 def delete_category(category_id):
-    delcat = Categories.query.get(category_id)
+    delcat = db.session.get(Categories, category_id)
     if delcat:
         username = delcat.username
         db.session.delete(delcat)

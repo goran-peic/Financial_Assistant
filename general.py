@@ -48,9 +48,17 @@ class Categories(db.Model):
 
 def stacked(df, categories):
     areas = dict()
-    last = np.zeros(len(df[categories[0]]))
+    if not categories:
+        return areas
+    
+    if df.empty:
+        for cat in categories:
+            areas[cat] = np.array([])
+        return areas
+
+    last = np.zeros(len(df.index))
     for cat in categories:
-        next = last + df[cat]
+        next = last + df.get(cat, 0)
         areas[cat] = np.hstack((last[::-1], next))
         last = next
     return areas
@@ -89,7 +97,14 @@ def style_plot(plot):
     plot.xaxis.axis_line_color = plot.yaxis.axis_line_color = "white"
 
     # Legend
-    if hasattr(plot, 'legend') and len(plot.legend) > 0:
-        plot.legend[0].background_fill_color = "gray" # "#e6e6e6"
-        plot.legend[0].background_fill_alpha = 0.1
-        plot.legend[0].label_text_font_style = "bold"
+    if hasattr(plot, 'legend'):
+        legends = plot.legend
+        if isinstance(legends, list) and len(legends) > 0:
+            legend = legends[0]
+            legend.background_fill_color = "gray" # "#e6e6e6"
+            legend.background_fill_alpha = 0.1
+            legend.label_text_font_style = "bold"
+        elif hasattr(legends, 'background_fill_color'): # Old bokeh where legend is the object
+            legends.background_fill_color = "gray"
+            legends.background_fill_alpha = 0.1
+            legends.label_text_font_style = "bold"
