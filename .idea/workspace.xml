@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ff5ac1c8-77cd-4214-a240-ec8bfb7be1e5" name="Default" comment="Updated packages and modules in requirements.txt.">
-      <change beforePath="$PROJECT_DIR$/.idea/Household_Finances.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Household_Finances.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/general.py" beforeDir="false" afterPath="$PROJECT_DIR$/general.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    <list default="true" id="ff5ac1c8-77cd-4214-a240-ec8bfb7be1e5" name="Default" comment="Updated packages and modules in requirements.txt. Added docstrings to functions in general.py">
       <change beforePath="$PROJECT_DIR$/../JobTracker/.idea/Web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../JobTracker/.idea/Web.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../JobTracker/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../JobTracker/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../JobTracker/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../JobTracker/.idea/workspace.xml" afterDir="false" />
@@ -407,7 +401,15 @@
       <option name="project" value="LOCAL" />
       <updated>1769994573999</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Updated packages and modules in requirements.txt. Added docstrings to functions in general.py">
+      <option name="closed" value="true" />
+      <created>1772046177487</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1772046177487</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -447,7 +449,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Updated all files to properly allow users to log in and show their expenditures via Bokeh plots." />
     <MESSAGE value="Updated packages and modules in requirements.txt." />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated packages and modules in requirements.txt." />
+    <MESSAGE value="Updated packages and modules in requirements.txt. Added docstrings to functions in general.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated packages and modules in requirements.txt. Added docstrings to functions in general.py" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/finances.py">
