@@ -15,7 +15,6 @@ db = SQLAlchemy(app)
 
 
 class User(UserMixin, db.Model):
-
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
@@ -29,7 +28,6 @@ class User(UserMixin, db.Model):
         return self.username
 
 class Categories(db.Model):
-
     __tablename__ = "categories"
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), db.ForeignKey("users.username"))
@@ -47,6 +45,13 @@ class Categories(db.Model):
 
 
 def stacked(df, categories):
+    '''
+    Prepares data for a stacked area chart by calculating cumulative sums.
+
+    :param df: Pandas DataFrame containing the financial data.
+    :param categories: List of category names to stack.
+    :return: Dictionary of arrays representing the stacked areas.
+    '''
     areas = dict()
     if not categories:
         return areas
@@ -64,11 +69,24 @@ def stacked(df, categories):
     return areas
 
 def sql_to_pandas(sql_object):
+    '''
+    Converts a SQLAlchemy query result into a Pandas DataFrame.
+
+    :param sql_object: SQLAlchemy query object or list of model instances.
+    :return: Pandas DataFrame containing the records.
+    '''
     data_records = [rec.__dict__ for rec in sql_object]
     pandas_dframe = DataFrame.from_records(data_records)
     return pandas_dframe
 
 def categorize_data(dframe, dframe_categories):
+    '''
+    Categorizes transaction data based on user-defined categories and keywords.
+
+    :param dframe: Pandas DataFrame containing transaction data with a 'Description' column.
+    :param dframe_categories: Pandas DataFrame containing category names and associated keywords.
+    :return: Updated DataFrame with a new 'Category' column.
+    '''
     dframe['Category'] = ''
     for ind in range(len(dframe_categories.index)):
         list_of_descriptions = list(dframe['Description'])
@@ -82,6 +100,11 @@ def categorize_data(dframe, dframe_categories):
     return dframe
 
 def style_plot(plot):
+    '''
+    Applies a consistent visual style to a Bokeh plot.
+
+    :param plot: The Bokeh figure object to be styled.
+    '''
     # Borders & Backgound
     plot.min_border_left = plot.min_border_right = 20
     plot.grid.minor_grid_line_color = '#eeeeee'
