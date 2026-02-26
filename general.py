@@ -4,12 +4,14 @@ from pandas import DataFrame
 from re import search
 from flask_login import UserMixin
 import numpy as np
+import os
 
 
 app = Flask(__name__)
-# app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://msxfcphdhrrtzh:-0ju6mMOrikn9BkyS6AchPr3d_@ec2-54-163-245-32.compute-1.amazonaws.com:5432/dbtrgfqrofvsvd'
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///database.db'
-# app.config["SQLALCHEMY_DATABASE_URI"] = 'postgresql://postgres:1malizabac@localhost/myDB'
+database_url = os.environ.get("DATABASE_URL", "sqlite:///database.db")
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SECRET_KEY"] = 'GiveMeABreak'
 db = SQLAlchemy(app)
 

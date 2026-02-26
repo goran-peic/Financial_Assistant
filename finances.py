@@ -9,8 +9,9 @@ from bokeh.models import NumeralTickFormatter, DatetimeTickFormatter
 from bokeh.embed import components
 from bokeh.resources import CDN
 import io, csv
+import os
 
-app.config["SECRET_KEY"] = "ITSASECRET"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "ITSASECRET")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -174,7 +175,8 @@ def delete_category(category_id):
         return redirect(url_for("dashboard", name=username))
     return redirect(url_for("index"))
 
+with app.app_context():
+    db.create_all()
+
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(debug=False)

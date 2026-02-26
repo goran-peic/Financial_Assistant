@@ -5,10 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ff5ac1c8-77cd-4214-a240-ec8bfb7be1e5" name="Default" comment="Updated packages and modules in requirements.txt. Added docstrings to functions in general.py">
-      <change beforePath="$PROJECT_DIR$/../JobTracker/.idea/Web.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../JobTracker/.idea/Web.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../JobTracker/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../JobTracker/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../JobTracker/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../JobTracker/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../JobTracker/instance/jobtracker.db" beforeDir="false" afterPath="$PROJECT_DIR$/../JobTracker/instance/jobtracker.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/finances.py" beforeDir="false" afterPath="$PROJECT_DIR$/finances.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/general.py" beforeDir="false" afterPath="$PROJECT_DIR$/general.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -409,7 +408,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772046177487</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Updated packages and modules in requirements.txt. Added docstrings to functions in general.py">
+      <option name="closed" value="true" />
+      <created>1772046359798</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1772046359798</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="ToolWindowManager">
